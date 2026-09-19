@@ -26,14 +26,24 @@ Full step-by-step process, with reasoning, is in [`salary_satisfaction_analysis.
 
 1. **Placeholder cleanup** — `-1` and `"Unknown / Non-Applicable"` replaced with real nulls (handled separately for the numeric `Rating` column, whose own `-1.0` placeholder wouldn't match a string check).
 2. **Duplicate detection** — the raw file's leading `index` column made every row look unique to a naive check; excluding it surfaced 13 real duplicate postings, which were dropped (672 → 659 rows) to avoid double-counting in salary/rating averages.
-3. **Rating imputation** — missing ratings filled with their industry's own mean rather than a global mean, since different industries have different baseline rating distributions.
+3. **Rating imputation** — missing ratings filled with their industry's own median rather than a global mean, since different industries have different baseline rating distributions, and a median is robust to a handful of unusually high or low ratings pulling a mean fill toward them.
 4. **Salary parsing** — the raw `"$137K-$171K (Glassdoor est.)"` format split into numeric min/max/average columns.
 5. **Industry consolidation** — 57 raw, free-text industry values mapped into 12 broad, human-readable categories via an explicit function (not a black-box model), so the grouping logic is fully reviewable.
 6. **Minimum-sample filtering** — any industry category with fewer than 5 postings excluded from the ranking, so a 1-2 posting category can't produce a misleadingly extreme average.
 
+## Reproduce it
+
+Originally developed in Google Colab; adapted to read `data/Uncleaned_DS_jobs.csv` from this repo so it runs standalone:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install pandas numpy matplotlib seaborn plotly jupyter nbconvert adjustText
+jupyter nbconvert --to notebook --execute --inplace salary_satisfaction_analysis.ipynb
+```
+
 ## Tools
 
-Python, pandas, seaborn/matplotlib, run in Google Colab.
+Python, pandas, seaborn/matplotlib.
 
 ## License
 
